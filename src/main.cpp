@@ -6,7 +6,6 @@ static uint8_t reg = 0;
 
 void transmitDataWire() {
       ThermiaWire.write(reg);
-
 }
 
 
@@ -17,7 +16,6 @@ void receiveDataWire(int numBytes) {      // the Wire library tells us how many 
       ThermiaWire.thermiaNack(true);
     }
   }
-
 }
 
 
