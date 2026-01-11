@@ -3,11 +3,17 @@
 #include <ArduinoRS485.h> 
 #include <ArduinoModbus.h>
 
-static uint8_t reg = 0;
-const int numCoils = 11;
+#define I2C_ADDRESS 0x2E
+#define MODBUS_ADDRESS 42
+#define MODBUS_BAUD 9600
+
+// #define I2C_ADDRESS 0x2E
+
+static uint8_t pullReg = 0;
+const int numCoils = 10;
 const int numDiscreteInputs = 10;
-const int numHoldingRegisters = 10;
-const int numInputRegisters = 10;
+const int numHoldingRegisters = 20;
+const int numInputRegisters = 20;
 
 void onModbusRequest(int slave, int function, int address, int quantity) {
   Serial.print("Request: Func=");
@@ -20,16 +26,28 @@ void onModbusRequest(int slave, int function, int address, int quantity) {
 
 
 void transmitDataWire() {
-      ThermiaWire.write(reg);
+      ThermiaWire.write(pullReg);
 }
 
 
-void receiveDataWire(int numBytes) {      // the Wire library tells us how many bytes
-  for (int i = 0; i < numBytes; i++) {    // were received so we can for loop for that
-    uint8_t c = ThermiaWire.read();                     // amount and read the received data
-    if ((c == 0xFE) && i == 0) {
-      ThermiaWire.thermiaNack(true);
-    }
+void receiveDataWire(int numBytes) {
+  uint8_t reg = ThermiaWire.read();         // read first byte, should be register or FE
+  if ((reg == 0xFE) && numBytes == 1) {
+    ThermiaWire.thermiaNack(true);
+  } else if (reg <= 0x0F && numBytes == 3) {               // Check if we got register value, what is highetst reg?
+    uint8_t low = ThermiaWire.read();         // read first byte, should be register or FE
+    uint8_t high = ThermiaWire.read();         // read first byte, should be register or FE
+    uint16_t value = (static_cast<uint16_t>(high) << 8) | low;
+
+    Serial.print("I2C write: reg=");
+    Serial.print(reg);
+    Serial.print(" high=");
+    Serial.print(high);
+    Serial.print(" low=");
+    Serial.print(low);
+    Serial.print(" value=");
+    Serial.println(value);
+    ModbusRTUServer.inputRegisterWrite(reg, value);
   }
 }
 
@@ -41,8 +59,7 @@ void setup() {
   }
   Serial.println("CHIP started...");
 
-  // start the Modbus RTU server, with (slave) id 42
-  if (!ModbusRTUServer.begin(42, 9600)) {
+  if (!ModbusRTUServer.begin(MODBUS_ADDRESS, MODBUS_BAUD)) {
     Serial.println("Failed to start Modbus RTU Server!");
     while (1);
   } else {
@@ -56,7 +73,7 @@ void setup() {
   ModbusRTUServer.configureInputRegisters(0x00, numInputRegisters);
 
   ThermiaWire.thermiaNack(true);
-  ThermiaWire.begin(0x2E);                 // initialize slave
+  ThermiaWire.begin(I2C_ADDRESS);                 // initialize slave
   ThermiaWire.onRequest(transmitDataWire); // register transmitDataWire as the handler
   ThermiaWire.onReceive(receiveDataWire);  // give the Wire library the name of the function
 }
@@ -69,7 +86,7 @@ void loop() {
     if (number != 0) {
       Serial.print("You entered: ");
       Serial.println(number);
-      reg = (uint8_t) number;
+      pullReg = (uint8_t) number;
       ThermiaWire.thermiaNack(false);
     }
   }
