@@ -57,120 +57,120 @@ packages:
     file: packages/raw-register.yaml
     vars:
       register_name: "00"
-      value_address: "32"
-      status_address: "33"
-      age_address: "34"
+      value_address: "288"
+      status_address: "289"
+      age_address: "290"
   register_01: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "01"
-      value_address: "35"
-      status_address: "36"
-      age_address: "37"
+      value_address: "291"
+      status_address: "292"
+      age_address: "293"
   register_02: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "02"
-      value_address: "38"
-      status_address: "39"
-      age_address: "40"
+      value_address: "294"
+      status_address: "295"
+      age_address: "296"
   register_03: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "03"
-      value_address: "41"
-      status_address: "42"
-      age_address: "43"
+      value_address: "297"
+      status_address: "298"
+      age_address: "299"
   register_04: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "04"
-      value_address: "44"
-      status_address: "45"
-      age_address: "46"
+      value_address: "300"
+      status_address: "301"
+      age_address: "302"
   register_05: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "05"
-      value_address: "47"
-      status_address: "48"
-      age_address: "49"
+      value_address: "303"
+      status_address: "304"
+      age_address: "305"
   register_06: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "06"
-      value_address: "50"
-      status_address: "51"
-      age_address: "52"
+      value_address: "306"
+      status_address: "307"
+      age_address: "308"
   register_07: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "07"
-      value_address: "53"
-      status_address: "54"
-      age_address: "55"
+      value_address: "309"
+      status_address: "310"
+      age_address: "311"
   register_08: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "08"
-      value_address: "56"
-      status_address: "57"
-      age_address: "58"
+      value_address: "312"
+      status_address: "313"
+      age_address: "314"
   register_09: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "09"
-      value_address: "59"
-      status_address: "60"
-      age_address: "61"
+      value_address: "315"
+      status_address: "316"
+      age_address: "317"
   register_0a: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "0a"
-      value_address: "62"
-      status_address: "63"
-      age_address: "64"
+      value_address: "318"
+      status_address: "319"
+      age_address: "320"
   register_0b: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "0b"
-      value_address: "65"
-      status_address: "66"
-      age_address: "67"
+      value_address: "321"
+      status_address: "322"
+      age_address: "323"
   register_0c: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "0c"
-      value_address: "68"
-      status_address: "69"
-      age_address: "70"
+      value_address: "324"
+      status_address: "325"
+      age_address: "326"
   register_0d: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "0d"
-      value_address: "71"
-      status_address: "72"
-      age_address: "73"
+      value_address: "327"
+      status_address: "328"
+      age_address: "329"
   register_0e: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "0e"
-      value_address: "74"
-      status_address: "75"
-      age_address: "76"
+      value_address: "330"
+      status_address: "331"
+      age_address: "332"
   register_0f: !include
     file: packages/raw-register.yaml
     vars:
       register_name: "0f"
-      value_address: "77"
-      status_address: "78"
-      age_address: "79"
+      value_address: "333"
+      status_address: "334"
+      age_address: "335"
 
 sensor:
   - platform: modbus_controller
     modbus_controller_id: thermia
     name: "I2C register responses"
-    address: 0x14
+    address: 0x0104
     register_type: read
     value_type: U_WORD
     entity_category: diagnostic
@@ -178,7 +178,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: thermia
     name: "I2C timeouts"
-    address: 0x15
+    address: 0x0105
     register_type: read
     value_type: U_WORD
     entity_category: diagnostic
@@ -186,7 +186,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: thermia
     name: "I2C malformed frames"
-    address: 0x16
+    address: 0x0106
     register_type: read
     value_type: U_WORD
     entity_category: diagnostic
@@ -194,7 +194,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: thermia
     name: "I2C accepted queries"
-    address: 0x17
+    address: 0x0107
     register_type: read
     value_type: U_WORD
     entity_category: diagnostic

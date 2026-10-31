@@ -11,7 +11,12 @@ class BridgeState {
   static constexpr uint32_t kPollGapMs = 250;
   static constexpr uint32_t kReplyTimeoutMs = 5000;
   static constexpr uint32_t kStaleMs = 120000;
-  static constexpr uint16_t kSnapshotStart = 0x20;
+  // Keep the entire 8-bit Thermia address space free of bridge registers.
+  static constexpr uint16_t kRawAddressLimit = 0x00ff;
+  static constexpr uint16_t kDiagnosticStart = 0x0100;
+  static constexpr uint16_t kSnapshotStart = 0x0120;
+  // Reserved for future bridge commands (not configured as writable registers).
+  static constexpr uint16_t kControlStart = 0x0200;
   static constexpr uint16_t kInputCount = kSnapshotStart + kRegisterCount * 3;
 
   struct Snapshot { uint16_t words[kInputCount]; };
@@ -79,7 +84,7 @@ class BridgeState {
       const uint32_t age = elapsed(now, receivedAt_[reg]);
       const bool valid = seen && !(expired_ & (1U << reg)) && age < kStaleMs;
       if (valid) fresh |= static_cast<uint16_t>(1U << reg);
-      out.words[reg] = values_[reg];  // preserve the original raw register map
+      out.words[reg] = values_[reg];  // Thermia register n maps directly to Modbus address n
       const uint16_t base = kSnapshotStart + reg * 3;
       out.words[base] = values_[reg];
       out.words[base + 1] = !seen ? 0 : (valid ? 1 : 2);
@@ -87,15 +92,15 @@ class BridgeState {
           ((ageSaturated_ & (1U << reg)) || age / 1000 > 0xfffe ?
            0xfffe : static_cast<uint16_t>(age / 1000));
     }
-    out.words[0x10] = 0x5448;  // "TH", bridge identification
-    out.words[0x11] = 1;       // register map version
-    out.words[0x12] = fresh;
-    out.words[0x13] = seen_;
-    out.words[0x14] = responses_;
-    out.words[0x15] = timeouts_;
-    out.words[0x16] = malformed_;
-    out.words[0x17] = queries_;
-    out.words[0x18] = pending_ ? requested_ : kIdle;
+    out.words[0x0100] = 0x5448;  // "TH", bridge identification
+    out.words[0x0101] = 2;       // register map version
+    out.words[0x0102] = fresh;
+    out.words[0x0103] = seen_;
+    out.words[0x0104] = responses_;
+    out.words[0x0105] = timeouts_;
+    out.words[0x0106] = malformed_;
+    out.words[0x0107] = queries_;
+    out.words[0x0108] = pending_ ? requested_ : kIdle;
   }
 
  private:

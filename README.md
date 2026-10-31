@@ -102,38 +102,55 @@ saknas eller är gammalt. Om Modbus slutar svara blir råsensorerna ogiltiga eft
 30 sekunder utan uppdatering. Om bara pumpkommunikationen upphör löper AVR:s
 120-sekunders giltighetstid ut först, plus upp till ett ESPHome-avläsningsintervall.
 
-## Bryggans registerkarta (version 1)
+## Registerkarta (version 2)
 
-Alla adresser är **nollbaserade input registers**, funktion 04. Detta är bryggans
-karta, inte Thermias inbyggda Modbus-registerkarta.
+Alla adresser är **nollbaserade input registers**, funktion 04. Thermia-register
+`n` motsvarar Modbus-adress `n`, med oförändrat råvärde. Hela området
+`0x0000–0x00FF` är reserverat för Thermia; bryggans egna register börjar på
+`0x0100`. Just nu hämtas endast `0x00–0x0F`. Övriga adresser i Thermia-området är
+reserverade och returnerar tills vidare noll, vilket inte är ett uppmätt värde.
+
+Detta är vår Modbus-brygga; pumpen kommunicerar fortfarande över I²C.
+Ange det faktiska registernumret i klienten, utan att lägga till 30001/40001.
 
 | Adress | Innehåll |
 | --- | --- |
-| `0x00–0x0F` | Senaste råvärde för respektive Thermia-register, bakåtkompatibel vy |
-| `0x10` | Identifierare `0x5448` (TH) |
-| `0x11` | Kartversion, `1` |
-| `0x12` | Färska register, bitmask (bit n = register n) |
-| `0x13` | Någonsin mottagna register, bitmask |
-| `0x14` | Antal giltiga registersvar |
-| `0x15` | Antal timeouter |
-| `0x16` | Antal felaktiga/ej stödda mottagna ramar |
-| `0x17` | Antal accepterade `0xFE`-frågor |
-| `0x18` | Väntande register, `0xFFFF` om inget väntar |
-| `0x19–0x1F` | Reserverat, noll |
-| `0x20 + 3×n` | Råvärde för register n |
-| `0x21 + 3×n` | Status: `0` aldrig mottaget, `1` färskt, `2` gammalt |
-| `0x22 + 3×n` | Ålder i sekunder, max `65534`; `65535` = aldrig mottaget |
+| `0x0000–0x000F` | Thermia-register `0x00–0x0F`, direkt 1:1 |
+| `0x0010–0x00FF` | Reserverat för ytterligare Thermia-register, ännu ej avlästa |
+| `0x0100` | Identifierare `0x5448` (TH) |
+| `0x0101` | Kartversion, `2` |
+| `0x0102` | Färska register, bitmask (bit n = register n) |
+| `0x0103` | Någonsin mottagna register, bitmask |
+| `0x0104` | Antal giltiga registersvar |
+| `0x0105` | Antal timeouter |
+| `0x0106` | Antal felaktiga/ej stödda mottagna ramar |
+| `0x0107` | Antal accepterade `0xFE`-frågor |
+| `0x0108` | Väntande register, `0xFFFF` om inget väntar |
+| `0x0109–0x011F` | Reserverat, noll |
+| `0x0120 + 3×n` | Råvärde för register n |
+| `0x0121 + 3×n` | Status: `0` aldrig mottaget, `1` färskt, `2` gammalt |
+| `0x0122 + 3×n` | Ålder i sekunder, max `65534`; `65535` = aldrig mottaget |
+
+`0x0200` och uppåt reserveras för eventuella styrregister för **bryggan**.
+De är inte implementerade eller skrivbara ännu. När skrivning av pumpinställningar
+införs ska även dessa adresser följa Thermia-numreringen 1:1 i holdingregister;
+bryggkommandon får inte ta över adresser i Thermia-området. Input- och
+holdingregister är separata Modbus-tabeller, så även registertypen måste anges.
+
+Den extra vyn från `0x0120` duplicerar råvärdet tillsammans med status och ålder.
+ESPHome-exemplet använder denna vy för att få värde och giltighet i samma svar.
+Den vanliga 1:1-vyn finns alltid kvar på Thermias ursprungliga adresser.
 
 `n` är `0–15`. Räknarna är 16-bitars, slår runt vid 65536 och nollställs vid
 omstart. Råvärden behåller pumpens bitmönster; Modbus skickar hög byte först som
-vanligt, så välj inte byte-swap i ESPHome. Undvik gamla råvyn för automationer:
+vanligt, så välj inte byte-swap i ESPHome. Komplettera 1:1-råvyn med giltighetskontroll i automationer:
 den saknar egen giltighetsmarkering och behåller senaste värdet vid bortfall.
 En till synes rimlig siffra bevisar inte att rätt parameter har identifierats.
 
 ## Provning på breadboard
 
 1. Bygg båda firmwarerna, kontrollera pinval och befintlig nivåanpassning.
-2. Prova först ESP32↔AVR. Registren `0x10/0x11` ska ge `0x5448/1` även utan pump.
+2. Prova först ESP32↔AVR. Registren `0x0100/0x0101` ska ge `0x5448/2` även utan pump.
    Råsensorerna ska förbli ogiltiga tills verkliga registersvar kommer.
 3. Återanslut den befintliga pumpkopplingen. Kontrollera att pumpens display och
    ordinarie funktion fortsätter fungera. Se om `I2C accepted queries` och
