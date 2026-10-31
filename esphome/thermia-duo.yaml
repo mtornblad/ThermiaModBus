@@ -1,0 +1,201 @@
+# Generic ESP32 DevKit example. Choose board and GPIOs for YOUR actual ESP32.
+substitutions:
+  device_name: thermia-duo
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  de_pin: GPIO4
+
+esphome:
+  name: ${device_name}
+  friendly_name: Thermia Duo
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+logger:
+  baud_rate: 0
+
+uart:
+  id: thermia_uart
+  tx_pin: ${tx_pin}
+  rx_pin: ${rx_pin}
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  # Tie DE and /RE together on this ESP32-side RS485 transceiver.
+  flow_control_pin: ${de_pin}
+
+modbus:
+  id: thermia_bus
+  uart_id: thermia_uart
+  send_wait_time: 500ms
+
+modbus_controller:
+  - id: thermia
+    address: 42
+    modbus_id: thermia_bus
+    update_interval: 10s
+    max_cmd_retries: 2
+
+packages:
+  register_00: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "00"
+      value_address: "32"
+      status_address: "33"
+      age_address: "34"
+  register_01: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "01"
+      value_address: "35"
+      status_address: "36"
+      age_address: "37"
+  register_02: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "02"
+      value_address: "38"
+      status_address: "39"
+      age_address: "40"
+  register_03: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "03"
+      value_address: "41"
+      status_address: "42"
+      age_address: "43"
+  register_04: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "04"
+      value_address: "44"
+      status_address: "45"
+      age_address: "46"
+  register_05: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "05"
+      value_address: "47"
+      status_address: "48"
+      age_address: "49"
+  register_06: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "06"
+      value_address: "50"
+      status_address: "51"
+      age_address: "52"
+  register_07: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "07"
+      value_address: "53"
+      status_address: "54"
+      age_address: "55"
+  register_08: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "08"
+      value_address: "56"
+      status_address: "57"
+      age_address: "58"
+  register_09: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "09"
+      value_address: "59"
+      status_address: "60"
+      age_address: "61"
+  register_0a: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0a"
+      value_address: "62"
+      status_address: "63"
+      age_address: "64"
+  register_0b: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0b"
+      value_address: "65"
+      status_address: "66"
+      age_address: "67"
+  register_0c: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0c"
+      value_address: "68"
+      status_address: "69"
+      age_address: "70"
+  register_0d: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0d"
+      value_address: "71"
+      status_address: "72"
+      age_address: "73"
+  register_0e: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0e"
+      value_address: "74"
+      status_address: "75"
+      age_address: "76"
+  register_0f: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0f"
+      value_address: "77"
+      status_address: "78"
+      age_address: "79"
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "I2C register responses"
+    address: 0x14
+    register_type: read
+    value_type: U_WORD
+    entity_category: diagnostic
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "I2C timeouts"
+    address: 0x15
+    register_type: read
+    value_type: U_WORD
+    entity_category: diagnostic
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "I2C malformed frames"
+    address: 0x16
+    register_type: read
+    value_type: U_WORD
+    entity_category: diagnostic
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "I2C accepted queries"
+    address: 0x17
+    register_type: read
+    value_type: U_WORD
+    entity_category: diagnostic
+    accuracy_decimals: 0

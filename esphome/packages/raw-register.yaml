@@ -1,0 +1,32 @@
+# Included once per Thermia register. The three adjacent words form one sample.
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "Register ${register_name} raw"
+    address: ${value_address}
+    register_type: read
+    value_type: U_WORD
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    lambda: |-
+      // Status comes from the SAME Modbus response as the raw value.
+      const size_t offset = item->offset + 2;
+      if (data.size() < offset + 2) return NAN;
+      const uint16_t status = (uint16_t(data[offset]) << 8) | data[offset + 1];
+      return status == 1 ? x : NAN;
+    filters:
+      - timeout: 30s
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    id: reg_${register_name}_status
+    internal: true
+    address: ${status_address}
+    register_type: read
+    value_type: U_WORD
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    id: reg_${register_name}_age
+    internal: true
+    address: ${age_address}
+    register_type: read
+    value_type: U_WORD

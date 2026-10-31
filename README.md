@@ -1,0 +1,181 @@
+# Thermia 901510 → ESPHome → Home Assistant
+
+Brygga för Mattias Thermia Duo med styrkort **901510** och **AVR64DD28**.
+AVR-kretsen hanterar Thermias I²C-protokoll med ThermiaWire. ESP32 läser
+bryggans Modbus RTU-register och ansluter till Home Assistant med ESPHomes API.
+
+## Status
+
+Det här är en **första version för avläsning och verifiering**, inte färdig
+pumpstyrning. Automatisk hämtning av `0x00–0x0F` bygger vidare på området i
+ursprungskoden. Registerbetydelse, skala och svarstider måste verifieras mot
+just den här pumpen. Kortets ålder bevisar inte protokollrevisionen.
+
+- Ett register i taget efterfrågas. Pumpen är I²C-master, AVR är slav på `0x2E`.
+- `0xFE` NACK:as när inget nytt uppdrag finns. När en läsning väntar accepteras
+  frågan och AVR lämnar registernumret när pumpen läser. Pumpens svar tolkas som
+  `[register, low, high]`, precis som i den ursprungliga firmwareversionen.
+- Ingen Modbus-hantering eller seriell loggning görs i I²C-avbrottet.
+- Timeout efter 5 sekunder; nästa register efter 250 ms. Värden blir gamla efter
+  120 sekunder utan ett nytt giltigt svar. Tiderna är startvärden för provning.
+- ESPHome visar 16 råregister. Ett äkta nollvärde skiljs från ett aldrig mottaget
+  värde. Giltighet och råvärde läses i samma Modbus-svar.
+- **Inga pumpinställningar kan skrivas.** Holdingregister och coils är inte
+  konfigurerade. Skrivning kräver verifierad registerkarta, gränser och återläsning.
+
+## Bygg AVR-firmware
+
+Installera PlatformIO och kör från projektmappen:
+
+```sh
+pio run -e avr64dd28
+```
+
+Beroendena är låsta till versioner/commits och hämtas via HTTPS. Ingen GitHub
+SSH-nyckel behövs. `avr64dd28` bygger utan att anta programmerare eller COM-port.
+
+Befintliga uppladdningsalternativ finns kvar:
+
+```sh
+pio run -e jtag2updi -t upload --upload-port COM9
+pio run -e pymcuprog_upload -t upload --upload-port /dev/ttyAMA1
+```
+
+`pymcuprog` måste installeras separat om det alternativet används. Anpassa porten
+på kommandoraden. Ingen uppladdning eller ändring av säkringsbitar sker vid vanlig byggning.
+Seriell startlogg går på `Serial` med 115200 baud; Modbus använder `Serial1`.
+
+## Anslutningar
+
+Firmware använder AVR64DD28:s standardplacering för TWI och USART1:
+
+| AVR-signal | Funktion |
+| --- | --- |
+| PA2 | SDA till Thermia-bussen |
+| PA3 | SCL till Thermia-bussen |
+| PC0 / Serial1 TX | Till RS485-modulens DI |
+| PC1 / Serial1 RX | Från RS485-modulens RO |
+| PC3 | RS485-modulens DE och /RE, sammankopplade |
+| UPDI | Programmeringsanslutning enligt det befintliga AVR-kortet |
+
+Behåll den redan provade kopplingen till pumpen. **EXT-kontaktens stiftordning,
+matning och signalnivåer dokumenteras först när den faktiska kopplingen har
+kontrollerats.** Tabellen anger MCU-portnamn, inte fysiska kapselstiftnummer.
+Om andra TWI-pinnar redan används behöver `ThermiaWire.pins()` anpassas före `begin()`.
+
+På ESP32-sidan är exemplet ett vanligt `esp32dev` med TX GPIO17, RX GPIO16 och
+DE+/RE GPIO4. Detta är exempelvärden, inte ett beslut om vilket ESP32-kort du har.
+Anpassa kort och pinnar till ditt kort innan flashning.
+
+Använd RS485-transceiver med signalnivåer som passar respektive processor;
+ESP32-GPIO får inte matas med 5 V. Koppla A↔A och B↔B enligt modulernas datablad,
+och signalreferens enligt gränssnittets utformning. Vid en punkt-till-punkt-kabel
+termineras de två fysiska ändarna vid behov; kontrollera om modulerna redan har
+terminering/bias. En RS485-transceiver innebär inte i sig galvanisk isolation.
+
+Om AVR och ESP32 senare hamnar intill varandra på samma kort kan Modbus RTU även
+transporteras över en nivåanpassad UART utan RS485-drivare. Den profilen är inte
+implementerad här; nuvarande firmware och YAML avser RS485.
+
+## ESPHome och Home Assistant
+
+1. Kopiera hela `esphome/` till din ESPHome-konfigurationsmapp inklusive `packages/`.
+2. Kopiera `secrets.example.yaml` till `secrets.yaml` eller slå ihop nycklarna med
+   din befintliga secrets-fil. Sätt Wi-Fi, OTA-lösenord och en unik API-nyckel.
+3. Generera API-nyckeln med `openssl rand -base64 32`. Exempeltexten är ingen nyckel.
+4. Anpassa `board`, `tx_pin`, `rx_pin` och `de_pin` i `thermia-duo.yaml`.
+5. Kör `esphome config thermia-duo.yaml` och `esphome run thermia-duo.yaml`.
+6. Lägg till enheten i Home Assistants **ESPHome**-integration och ange API-nyckeln.
+
+Modbus-inställningarna är **adress 42, 9600 baud, 8N1, funktion 04**.
+Använd versionen av firmware i den här ändringen tillsammans med YAML-exemplet;
+ursprungsversionen hade inte statusorden som YAML nu behöver.
+
+Namnen `Register 00 raw` till `Register 0f raw` är avsiktligt neutrala.
+När värden jämförts med displayen kan sensorerna få rätt namn, enhet, teckentolkning
+och skala. Nu publiceras råa 16-bitars ord utan enhet; tvåkomplementsvärdet `65526`
+kan exempelvis betyda `-10`, men rätt temperaturskala är ännu inte fastställd.
+
+ESPHome läser värde, status och ålder i ett gemensamt sammanhängande registerområde.
+Lambda-funktionen kontrollerar status i samma svar och returnerar `NAN` om värdet
+saknas eller är gammalt. Om Modbus slutar svara blir råsensorerna ogiltiga efter
+30 sekunder utan uppdatering. Om bara pumpkommunikationen upphör löper AVR:s
+120-sekunders giltighetstid ut först, plus upp till ett ESPHome-avläsningsintervall.
+
+## Bryggans registerkarta (version 1)
+
+Alla adresser är **nollbaserade input registers**, funktion 04. Detta är bryggans
+karta, inte Thermias inbyggda Modbus-registerkarta.
+
+| Adress | Innehåll |
+| --- | --- |
+| `0x00–0x0F` | Senaste råvärde för respektive Thermia-register, bakåtkompatibel vy |
+| `0x10` | Identifierare `0x5448` (TH) |
+| `0x11` | Kartversion, `1` |
+| `0x12` | Färska register, bitmask (bit n = register n) |
+| `0x13` | Någonsin mottagna register, bitmask |
+| `0x14` | Antal giltiga registersvar |
+| `0x15` | Antal timeouter |
+| `0x16` | Antal felaktiga/ej stödda mottagna ramar |
+| `0x17` | Antal accepterade `0xFE`-frågor |
+| `0x18` | Väntande register, `0xFFFF` om inget väntar |
+| `0x19–0x1F` | Reserverat, noll |
+| `0x20 + 3×n` | Råvärde för register n |
+| `0x21 + 3×n` | Status: `0` aldrig mottaget, `1` färskt, `2` gammalt |
+| `0x22 + 3×n` | Ålder i sekunder, max `65534`; `65535` = aldrig mottaget |
+
+`n` är `0–15`. Räknarna är 16-bitars, slår runt vid 65536 och nollställs vid
+omstart. Råvärden behåller pumpens bitmönster; Modbus skickar hög byte först som
+vanligt, så välj inte byte-swap i ESPHome. Undvik gamla råvyn för automationer:
+den saknar egen giltighetsmarkering och behåller senaste värdet vid bortfall.
+En till synes rimlig siffra bevisar inte att rätt parameter har identifierats.
+
+## Provning på breadboard
+
+1. Bygg båda firmwarerna, kontrollera pinval och befintlig nivåanpassning.
+2. Prova först ESP32↔AVR. Registren `0x10/0x11` ska ge `0x5448/1` även utan pump.
+   Råsensorerna ska förbli ogiltiga tills verkliga registersvar kommer.
+3. Återanslut den befintliga pumpkopplingen. Kontrollera att pumpens display och
+   ordinarie funktion fortsätter fungera. Se om `I2C accepted queries` och
+   `I2C register responses` ökar.
+4. Notera alla 16 råvärden samt displayens temperaturer, integral och driftläge
+   vid samma tidpunkt. Två eller tre mätserier hjälper att fastställa skalan.
+5. Om timeout räknas upp men svar saknas: kontrollera NODE-inställning,
+   anslutning och handskakning innan intervall eller registerområde utökas.
+   Äldre kompatibla Thermia-kort kan behöva NODE ≥2 enligt gränssnittsleverantörer;
+   läs av nuvarande inställning innan den ändras och beakta andra tillbehör.
+6. Prova bortfall mellan AVR och ESP32: inga gamla råvärden ska fortsätta som
+   giltiga HA-värden efter 30 sekunder. Kontrollera pumpbortfall separat.
+
+För att färdigställa styrningen återstår: verifiera registerkartan och kortrevision,
+välja parametrar som ska styras, implementera begränsade skrivkommandon med
+återläsning, och dokumentera kopplingen med de faktiska korten före lödning.
+
+## Tester
+
+```sh
+g++ -std=c++11 -Wall -Wextra -Werror -pedantic -I include test/native/test_bridge.cpp -o /tmp/test-bridge
+/tmp/test-bridge
+pio run -e avr64dd28
+esphome config esphome/thermia-duo.yaml
+esphome compile --only-generate esphome/thermia-duo.yaml
+python test/test_esphome_lambda.py
+```
+
+Native-testet använder samma tillståndsmaskin som firmware och verifierar
+handskakning, register noll, byteordning, felaktiga ramar, sena svar, timeout,
+registercykel, giltighet, riktiga nollor och timeromslag. Tester ersätter inte ett
+prov mot pumpens buss. CI använder tillfälliga testhemligheter för ESPHome.
+
+Den separata lambda-kontrollen kompilerar uttrycket direkt ur YAML och testar
+saknade/gamla värden, verklig nolla, korta svar och förskjutning i ett samlat svar.
+Det är inte en fullständig ESP32-firmwarekompilering.
+
+## Referenser
+
+- [ThermiaWire-forken](https://github.com/mtornblad/ThermiaWire)
+- [Husdata om 901510:s olika generationer](https://husdata.se/thermia-diplomat/)
+- [Husdata, anslutning och äldre NODE-inställning](https://husdata.se/docs/heat-pump-installation/60-thermia-diplomat/thermia-diplomat-installation/)
+- [ESPHome Modbus controller](https://esphome.io/components/modbus_controller/)
+- [ESPHome Modbus-sensorer](https://esphome.io/components/sensor/modbus_controller/)
+- [DxCore:s AVR64DD28-pinout](https://github.com/mtornblad/DxCore/blob/77292d36c7c7d1e7ca79bbfbfb61915554229657/megaavr/variants/28pin-ddseries/pins_arduino.h)
