@@ -1,4 +1,4 @@
-# Thermia 901510 → ESPHome → Home Assistant
+# Thermia 901510 → AVR → XIAO ESP32-C6 → Home Assistant
 
 Brygga för Mattias Thermia Duo med styrkort **901510** och **AVR64DD28**.
 AVR-kretsen hanterar Thermias I²C-protokoll med ThermiaWire. ESP32 läser
@@ -45,37 +45,37 @@ pio run -e pymcuprog_upload -t upload --upload-port /dev/ttyAMA1
 på kommandoraden. Ingen uppladdning eller ändring av säkringsbitar sker vid vanlig byggning.
 Seriell startlogg går på `Serial` med 115200 baud; Modbus använder `Serial1`.
 
-## Anslutningar
+## Anslutningar: XIAO ESP32-C6 och direkt UART
 
-Firmware använder AVR64DD28:s standardplacering för TWI och USART1:
+Se [kopplingsschemat](docs/wiring-xiao-c6.svg) och
+[matning och isolering](docs/WIRING.md). Schemat är preliminärt tills den
+befintliga I²C-isolatorn och Thermias EXT-stift har identifierats.
 
-| AVR-signal | Funktion |
+För den nya konstruktionen föreslås AVR och XIAO på samma lokala 3,3 V-domän.
+AVR:s **VDD och VDDIO2 ansluts båda till 3,3 V**. MVIO kan behållas aktiverat med
+samma spänning på båda matningspinnarna; det behövs ingen 5 V-domän på AVR-kortet
+om isolatorns lokala sida fungerar med 3,3 V. Isolatorns pumpsida arbetar med
+pumpens verifierade 5 V-matning och jord. De två jorddomänerna hålls åtskilda.
+
+| Lokal anslutning | Motpart |
 | --- | --- |
-| PA2 | SDA till Thermia-bussen |
-| PA3 | SCL till Thermia-bussen |
-| PC0 / Serial1 TX | Till RS485-modulens DI |
-| PC1 / Serial1 RX | Från RS485-modulens RO |
-| PC3 | RS485-modulens DE och /RE, sammankopplade |
-| UPDI | Programmeringsanslutning enligt det befintliga AVR-kortet |
+| AVR PA2 / SDA | Isolatorns lokala SDA |
+| AVR PA3 / SCL | Isolatorns lokala SCL |
+| AVR PC0 / Serial1 TX | XIAO **D7 / GPIO17 / RX** |
+| AVR PC1 / Serial1 RX | XIAO **D6 / GPIO16 / TX** |
+| AVR VDD och VDDIO2 | Lokal 3,3 V |
+| AVR GND | XIAO GND och isolatorns lokala GND |
+| AVR UPDI | Programmerare med 3,3 V-signaler och lokal jordreferens |
 
-Behåll den redan provade kopplingen till pumpen. **EXT-kontaktens stiftordning,
-matning och signalnivåer dokumenteras först när den faktiska kopplingen har
-kontrollerats.** Tabellen anger MCU-portnamn, inte fysiska kapselstiftnummer.
-Om andra TWI-pinnar redan används behöver `ThermiaWire.pins()` anpassas före `begin()`.
+Inga RS485-transceivrar eller DE-/RE-signaler används. PC3 är ledig.
+Modbus RTU är fortfarande protokollet: **adress 42, 9600 baud, 8N1**.
+ArduinoRS485 är kvar som programvaruberoende eftersom ArduinoModbus använder dess
+transportklass; den skapas med både DE och /RE satta till `-1`.
 
-På ESP32-sidan är exemplet ett vanligt `esp32dev` med TX GPIO17, RX GPIO16 och
-DE+/RE GPIO4. Detta är exempelvärden, inte ett beslut om vilket ESP32-kort du har.
-Anpassa kort och pinnar till ditt kort innan flashning.
-
-Använd RS485-transceiver med signalnivåer som passar respektive processor;
-ESP32-GPIO får inte matas med 5 V. Koppla A↔A och B↔B enligt modulernas datablad,
-och signalreferens enligt gränssnittets utformning. Vid en punkt-till-punkt-kabel
-termineras de två fysiska ändarna vid behov; kontrollera om modulerna redan har
-terminering/bias. En RS485-transceiver innebär inte i sig galvanisk isolation.
-
-Om AVR och ESP32 senare hamnar intill varandra på samma kort kan Modbus RTU även
-transporteras över en nivåanpassad UART utan RS485-drivare. Den profilen är inte
-implementerad här; nuvarande firmware och YAML avser RS485.
+Firmware använder standardplaceringarna för TWI och USART1. Portnamnen ovan är
+inte fysiska kapselstiftnummer. En tidigare koppling med TWI på MVIO-pinnarna
+PC2/PC3 måste dras om till PA2/PA3 för denna version. Koppla inte XIAO till en
+AVR-UART som fortfarande drivs med 5 V.
 
 ## ESPHome och Home Assistant
 
@@ -83,7 +83,7 @@ implementerad här; nuvarande firmware och YAML avser RS485.
 2. Kopiera `secrets.example.yaml` till `secrets.yaml` eller slå ihop nycklarna med
    din befintliga secrets-fil. Sätt Wi-Fi, OTA-lösenord och en unik API-nyckel.
 3. Generera API-nyckeln med `openssl rand -base64 32`. Exempeltexten är ingen nyckel.
-4. Anpassa `board`, `tx_pin`, `rx_pin` och `de_pin` i `thermia-duo.yaml`.
+4. Konfigurationen är anpassad till XIAO ESP32-C6: TX GPIO16/D6, RX GPIO17/D7. Kontrollera att kopplingen följer tabellen ovan.
 5. Kör `esphome config thermia-duo.yaml` och `esphome run thermia-duo.yaml`.
 6. Lägg till enheten i Home Assistants **ESPHome**-integration och ange API-nyckeln.
 
@@ -149,18 +149,18 @@ En till synes rimlig siffra bevisar inte att rätt parameter har identifierats.
 
 ## Provning på breadboard
 
-1. Bygg båda firmwarerna, kontrollera pinval och befintlig nivåanpassning.
+1. Bygg båda firmwarerna, kontrollera den nya 3,3 V-matningen, pinval och isolatorns två matningsdomäner.
 2. Prova först ESP32↔AVR. Registren `0x0100/0x0101` ska ge `0x5448/2` även utan pump.
    Råsensorerna ska förbli ogiltiga tills verkliga registersvar kommer.
-3. Återanslut den befintliga pumpkopplingen. Kontrollera att pumpens display och
+3. Återanslut pumpkopplingen genom den verifierade isolatorn. Kontrollera att pumpens display och
    ordinarie funktion fortsätter fungera. Se om `I2C accepted queries` och
    `I2C register responses` ökar.
 4. Notera alla 16 råvärden samt displayens temperaturer, integral och driftläge
    vid samma tidpunkt. Två eller tre mätserier hjälper att fastställa skalan.
-5. Om timeout räknas upp men svar saknas: kontrollera NODE-inställning,
-   anslutning och handskakning innan intervall eller registerområde utökas.
-   Äldre kompatibla Thermia-kort kan behöva NODE ≥2 enligt gränssnittsleverantörer;
-   läs av nuvarande inställning innan den ändras och beakta andra tillbehör.
+5. NODE-inställningen är redan bekräftad rätt för den befintliga koden.
+   Om timeouter räknas upp men svar saknas efter ombyggnaden: kontrollera
+   isolatorns matningar, pullups, SDA/SCL och den tidigare fungerande
+   handskakningen innan registerområde eller tider ändras.
 6. Prova bortfall mellan AVR och ESP32: inga gamla råvärden ska fortsätta som
    giltiga HA-värden efter 30 sekunder. Kontrollera pumpbortfall separat.
 

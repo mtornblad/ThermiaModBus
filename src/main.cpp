@@ -10,9 +10,9 @@ constexpr uint8_t kI2cAddress = 0x2e;
 constexpr uint8_t kModbusAddress = 42;
 constexpr unsigned long kModbusBaud = 9600;
 
-// Explicit construction avoids relying on board/library default pin macros.
-// DE and /RE are tied together on PC3 (or /RE is permanently enabled).
-RS485Class bridgeSerial(Serial1, PIN_PC0, PIN_PC3, -1);
+// Direct 3.3 V UART to XIAO ESP32-C6 on the same board: no DE or /RE GPIO.
+// ArduinoModbus uses the RS485Class transport API even without transceivers.
+RS485Class bridgeSerial(Serial1, PIN_PC0, -1, -1);
 BridgeState bridge;
 BridgeState::Snapshot currentSnapshot;
 

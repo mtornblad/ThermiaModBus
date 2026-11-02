@@ -1,16 +1,15 @@
-# Generic ESP32 DevKit example. Choose board and GPIOs for YOUR actual ESP32.
+# Seeed Studio XIAO ESP32-C6, direct 3.3 V UART to AVR64DD28.
 substitutions:
   device_name: thermia-duo
-  tx_pin: GPIO17
-  rx_pin: GPIO16
-  de_pin: GPIO4
+  tx_pin: GPIO16
+  rx_pin: GPIO17
 
 esphome:
   name: ${device_name}
   friendly_name: Thermia Duo
 
 esp32:
-  board: esp32dev
+  board: seeed_xiao_esp32c6
   framework:
     type: esp-idf
 
@@ -37,8 +36,6 @@ uart:
   data_bits: 8
   parity: NONE
   stop_bits: 1
-  # Tie DE and /RE together on this ESP32-side RS485 transceiver.
-  flow_control_pin: ${de_pin}
 
 modbus:
   id: thermia_bus
