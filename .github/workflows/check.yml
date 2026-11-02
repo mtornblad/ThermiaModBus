@@ -1,0 +1,40 @@
+name: Check bridge
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: g++ -std=c++11 -Wall -Wextra -Werror -pedantic -fsanitize=address,undefined -I include test/native/test_bridge.cpp -o /tmp/test-bridge
+      - run: /tmp/test-bridge
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install platformio==6.2.0
+      - run: pio run -e avr64dd28
+  esphome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install esphome==2026.10.1
+      - name: Create temporary validation secrets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64, os
+          text = Path('esphome/secrets.example.yaml').read_text()
+          text = text.replace('REPLACE_WITH_RANDOM_BASE64_KEY', base64.b64encode(os.urandom(32)).decode())
+          Path('esphome/secrets.yaml').write_text(text)
+          PY
+      - run: esphome config esphome/thermia-duo.yaml > /dev/null
+      - run: esphome compile --only-generate esphome/thermia-duo.yaml
+      - run: python test/test_esphome_lambda.py

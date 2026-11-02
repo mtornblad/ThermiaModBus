@@ -1,0 +1,198 @@
+# Seeed Studio XIAO ESP32-C6, direct 3.3 V UART to AVR64DD28.
+substitutions:
+  device_name: thermia-duo
+  tx_pin: GPIO16
+  rx_pin: GPIO17
+
+esphome:
+  name: ${device_name}
+  friendly_name: Thermia Duo
+
+esp32:
+  board: seeed_xiao_esp32c6
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+logger:
+  baud_rate: 0
+
+uart:
+  id: thermia_uart
+  tx_pin: ${tx_pin}
+  rx_pin: ${rx_pin}
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+
+modbus:
+  id: thermia_bus
+  uart_id: thermia_uart
+  send_wait_time: 500ms
+
+modbus_controller:
+  - id: thermia
+    address: 42
+    modbus_id: thermia_bus
+    update_interval: 10s
+    max_cmd_retries: 2
+
+packages:
+  register_00: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "00"
+      value_address: "288"
+      status_address: "289"
+      age_address: "290"
+  register_01: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "01"
+      value_address: "291"
+      status_address: "292"
+      age_address: "293"
+  register_02: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "02"
+      value_address: "294"
+      status_address: "295"
+      age_address: "296"
+  register_03: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "03"
+      value_address: "297"
+      status_address: "298"
+      age_address: "299"
+  register_04: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "04"
+      value_address: "300"
+      status_address: "301"
+      age_address: "302"
+  register_05: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "05"
+      value_address: "303"
+      status_address: "304"
+      age_address: "305"
+  register_06: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "06"
+      value_address: "306"
+      status_address: "307"
+      age_address: "308"
+  register_07: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "07"
+      value_address: "309"
+      status_address: "310"
+      age_address: "311"
+  register_08: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "08"
+      value_address: "312"
+      status_address: "313"
+      age_address: "314"
+  register_09: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "09"
+      value_address: "315"
+      status_address: "316"
+      age_address: "317"
+  register_0a: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0a"
+      value_address: "318"
+      status_address: "319"
+      age_address: "320"
+  register_0b: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0b"
+      value_address: "321"
+      status_address: "322"
+      age_address: "323"
+  register_0c: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0c"
+      value_address: "324"
+      status_address: "325"
+      age_address: "326"
+  register_0d: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0d"
+      value_address: "327"
+      status_address: "328"
+      age_address: "329"
+  register_0e: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0e"
+      value_address: "330"
+      status_address: "331"
+      age_address: "332"
+  register_0f: !include
+    file: packages/raw-register.yaml
+    vars:
+      register_name: "0f"
+      value_address: "333"
+      status_address: "334"
+      age_address: "335"
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "I2C register responses"
+    address: 0x0104
+    register_type: read
+    value_type: U_WORD
+    entity_category: diagnostic
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "I2C timeouts"
+    address: 0x0105
+    register_type: read
+    value_type: U_WORD
+    entity_category: diagnostic
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "I2C malformed frames"
+    address: 0x0106
+    register_type: read
+    value_type: U_WORD
+    entity_category: diagnostic
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: thermia
+    name: "I2C accepted queries"
+    address: 0x0107
+    register_type: read
+    value_type: U_WORD
+    entity_category: diagnostic
+    accuracy_decimals: 0
