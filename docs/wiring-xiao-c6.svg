@@ -2,7 +2,7 @@
 <defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse"><path d="M0,0 L7,3.5 L0,7 Z" fill="#253e59"/></marker></defs>
 <rect x="0" y="0" width="1600" height="1100" rx="0" fill="#f5f8fc" stroke="#f5f8fc" stroke-width="2"/>
 <text x="40" y="48" font-family="DejaVu Sans,Arial,sans-serif" font-size="30" fill="#17283b" font-weight="bold" text-anchor="start">Thermia Duo 901510 → AVR64DD28 → XIAO ESP32-C6</text>
-<text x="40" y="82" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#80521d" font-weight="normal" text-anchor="start">Kopplingsförslag A · 2026-11-02 · Isolator och EXT-stiftnummer återstår att identifiera</text>
+<text x="40" y="82" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#80521d" font-weight="normal" text-anchor="start">Kopplingsförslag B · Adafruit ISO1540 #4903 · EXT-stift och AVR-adapter återstår att verifiera</text>
 <rect x="25" y="110" width="535" height="640" rx="8" fill="#fff7eb" stroke="#e0c395" stroke-width="2"/>
 <rect x="575" y="110" width="1000" height="640" rx="8" fill="#edf5ff" stroke="#a9c8e7" stroke-width="2"/>
 <text x="45" y="144" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" fill="#17283b" font-weight="bold" text-anchor="start">PUMPSIDA · 5V_P / GND_P</text>
@@ -11,23 +11,23 @@
 <text x="568" y="728" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#9b5b23" font-weight="normal" text-anchor="middle">ISOLATION</text>
 <rect x="55" y="245" width="235" height="265" rx="8" fill="#fff" stroke="#8da1b5" stroke-width="2"/>
 <text x="75" y="280" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" fill="#17283b" font-weight="bold" text-anchor="start">Thermia 901510</text>
-<text x="75" y="311" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">EXT / befintlig kabel</text>
+<text x="75" y="311" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">EXT / I²C-master</text>
 <text x="267" y="367" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#17283b" font-weight="normal" text-anchor="end">SDA</text>
 <text x="267" y="417" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#17283b" font-weight="normal" text-anchor="end">SCL</text>
 <text x="75" y="455" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">5V_P och GND_P:</text>
 <text x="75" y="481" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">verifiera stiftordning</text>
 <rect x="400" y="245" width="330" height="265" rx="8" fill="#fff" stroke="#8da1b5" stroke-width="2"/>
 <line x1="568" y1="245" x2="568" y2="510" stroke="#bd702d" stroke-width="3" stroke-dasharray="7 5"/>
-<text x="565" y="280" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" fill="#17283b" font-weight="bold" text-anchor="middle">I²C-isolator</text>
-<text x="565" y="309" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="middle">modell ej fastställd</text>
-<text x="418" y="367" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">SDA_P</text>
-<text x="418" y="417" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">SCL_P</text>
-<text x="713" y="367" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="end">SDA_L</text>
-<text x="713" y="417" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="end">SCL_L</text>
-<text x="418" y="470" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#a25e21" font-weight="normal" text-anchor="start">5V_P</text>
-<text x="713" y="470" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#286ca9" font-weight="normal" text-anchor="end">3V3_L</text>
-<text x="418" y="495" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">GND_P</text>
-<text x="713" y="495" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="end">GND_L</text>
+<text x="565" y="280" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" fill="#17283b" font-weight="bold" text-anchor="middle">ISO1540</text>
+<text x="565" y="309" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="middle">Adafruit #4903</text>
+<text x="418" y="367" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">SDA1</text>
+<text x="418" y="417" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">SCL1</text>
+<text x="713" y="367" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="end">SDA2</text>
+<text x="713" y="417" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="end">SCL2</text>
+<text x="418" y="470" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#a25e21" font-weight="normal" text-anchor="start">VCC1 = 5 V</text>
+<text x="713" y="470" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#286ca9" font-weight="normal" text-anchor="end">VCC2 = 3,3 V</text>
+<text x="418" y="495" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#17283b" font-weight="normal" text-anchor="start">GND1 = GND_P</text>
+<text x="713" y="495" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#17283b" font-weight="normal" text-anchor="end">GND2 = GND_L</text>
 <line x1="290" y1="360" x2="400" y2="360" stroke="#253e59" stroke-width="2"/>
 <line x1="290" y1="410" x2="400" y2="410" stroke="#253e59" stroke-width="2"/>
 <line x1="496" y1="360" x2="638" y2="360" stroke="#bd702d" stroke-width="2" stroke-dasharray="4 5"/>
@@ -52,37 +52,25 @@
 <line x1="1315" y1="505" x2="1170" y2="505" stroke="#253e59" stroke-width="2" marker-end="url(#arrow)"/>
 <text x="1242" y="435" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#17283b" font-weight="normal" text-anchor="middle">UART 3,3 V</text>
 <text x="1242" y="538" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#17283b" font-weight="normal" text-anchor="middle">9600 · 8N1</text>
-<line x1="774" y1="207" x2="839" y2="207" stroke="#286ca9" stroke-width="2"/>
-<text x="805" y="190" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#286ca9" font-weight="normal" text-anchor="middle">3V3_L</text>
-<line x1="780" y1="207" x2="780" y2="228" stroke="#253e59" stroke-width="2"/>
-<rect x="774" y="228" width="12" height="44" rx="0" fill="#fff" stroke="#253e59" stroke-width="2"/>
-<line x1="780" y1="272" x2="780" y2="360" stroke="#253e59" stroke-width="2"/>
-<circle cx="780" cy="360" r="4" fill="#253e59"/>
-<text x="766" y="296" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#17283b" font-weight="normal" text-anchor="end">R1</text>
-<line x1="830" y1="207" x2="830" y2="228" stroke="#253e59" stroke-width="2"/>
-<rect x="824" y="228" width="12" height="44" rx="0" fill="#fff" stroke="#253e59" stroke-width="2"/>
-<line x1="830" y1="272" x2="830" y2="410" stroke="#253e59" stroke-width="2"/>
-<circle cx="830" cy="410" r="4" fill="#253e59"/>
-<text x="816" y="296" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#17283b" font-weight="normal" text-anchor="end">R2</text>
-<text x="805" y="445" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#17283b" font-weight="normal" text-anchor="middle">R1/R2: 4,7 kΩ*</text>
+<text x="565" y="334" font-family="DejaVu Sans,Arial,sans-serif" font-size="13" fill="#17283b" font-weight="normal" text-anchor="middle">10 kΩ-pullups per I²C-linje/sida</text>
 <rect x="55" y="170" width="450" height="55" rx="8" fill="#fff" stroke="#8da1b5" stroke-width="2"/>
-<text x="75" y="204" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">5V_P → isolator P · GND_P → isolator P</text>
+<text x="75" y="204" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">5V_P → sida 1 VCC · GND_P → sida 1 GND</text>
 <rect x="905" y="170" width="640" height="55" rx="8" fill="#fff" stroke="#8da1b5" stroke-width="2"/>
-<text x="925" y="204" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#17283b" font-weight="normal" text-anchor="start">USB-C → XIAO → 3V3_L till AVR + isolator L</text>
+<text x="925" y="204" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#17283b" font-weight="normal" text-anchor="start">USB-C → XIAO → 3V3_L till AVR + ISO1540 sida 2</text>
 <rect x="55" y="605" width="450" height="110" rx="8" fill="#fff" stroke="#8da1b5" stroke-width="2"/>
-<text x="75" y="634" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#17283b" font-weight="bold" text-anchor="start">Pumpens sida har egen referens.</text>
-<text x="75" y="664" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#17283b" font-weight="normal" text-anchor="start">C4: 100 nF, 5V_P–GND_P vid isolatorn.*</text>
-<text x="75" y="692" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#17283b" font-weight="normal" text-anchor="start">Befintliga pullups kontrolleras först.</text>
+<text x="75" y="634" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#17283b" font-weight="bold" text-anchor="start">Sida 1 → pumpen (I²C-master).</text>
+<text x="75" y="664" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#17283b" font-weight="normal" text-anchor="start">Nedre stiftrad / vänster STEMMA QT.</text>
+<text x="75" y="692" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#17283b" font-weight="normal" text-anchor="start">Modulen har 10 kΩ-pullups och 100 nF.</text>
 <rect x="600" y="605" width="945" height="110" rx="8" fill="#fff" stroke="#8da1b5" stroke-width="2"/>
-<text x="620" y="634" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#17283b" font-weight="bold" text-anchor="start">Gemensam lokal jord för AVR, XIAO och isolatorns L-sida.</text>
+<text x="620" y="634" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#17283b" font-weight="bold" text-anchor="start">Sida 2 → AVR. Övre stiftrad / högra STEMMA QT.</text>
 <text x="620" y="663" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">C1: 100 nF VDD–GND_L · C2: 100 nF VDDIO2–GND_L</text>
-<text x="620" y="691" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">C3: 100 nF vid isolator L* · C5: 4,7 µF på 3V3_L vid AVR/isolator</text>
+<text x="620" y="691" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#17283b" font-weight="normal" text-anchor="start">Modulen har 100 nF/sida · C5: 4,7 µF på 3V3_L vid AVR</text>
 <rect x="25" y="775" width="1550" height="295" rx="8" fill="#fff" stroke="#b6c4d2" stroke-width="2"/>
 <text x="48" y="812" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" fill="#17283b" font-weight="bold" text-anchor="start">Nät och villkor före lödning</text>
 <text x="48" y="850" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#17283b" font-weight="normal" text-anchor="start">1. GND_P och GND_L hålls åtskilda. Pumpens 5 V kopplas inte till lokal USB/3V3.</text>
-<text x="48" y="884" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#17283b" font-weight="normal" text-anchor="start">2. Isolatorn ska stödja 5 V/3,3 V, dubbelriktad SDA och SCL samt clock stretching.</text>
+<text x="48" y="884" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#17283b" font-weight="normal" text-anchor="start">2. ISO1540 stöder 5 V/3,3 V och clock stretching. Sida 1 till pump, sida 2 till AVR.</text>
 <text x="48" y="918" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#17283b" font-weight="normal" text-anchor="start">3. AVR:s båda matningspinnar kopplas till 3V3_L. MVIO- och BOD-inställningar kontrolleras.</text>
 <text x="48" y="952" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#17283b" font-weight="normal" text-anchor="start">4. UPDI-programmerare ansluts endast lokalt med 3,3 V-signaler. PC3 är ledig.</text>
-<text x="48" y="986" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#80521d" font-weight="normal" text-anchor="start">* Pullups/avkoppling är startvärden. Modellens datablad och befintliga modulkomponenter avgör.</text>
-<text x="48" y="1030" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#566a7e" font-weight="normal" text-anchor="start">Portnamn visas, inte kapselstiftnummer. Se WIRING.md för full nätlista och källor.</text>
+<text x="48" y="986" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#80521d" font-weight="normal" text-anchor="start">Inga extra I²C-pullups som utgångspunkt. Kortet har redan 10 kΩ på båda sidor.</text>
+<text x="48" y="1030" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" fill="#566a7e" font-weight="normal" text-anchor="start">ISO154x-texten rättvänd anger övre/nedre rad. Koppla efter märkning. Se WIRING.md.</text>
 </svg>

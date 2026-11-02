@@ -18,7 +18,7 @@ Inget har flashats eller provats mot pumpen i denna miljö.
 | C++20-kompilering och beteendetest av den faktiska YAML-lambdan | Godkänd, omkörd 2026-11-02 |
 | Fullständig ESP32-firmware | Inte verifierad: ESP-IDF:s komponenthanterare stoppades i miljön av `psutil.NoSuchProcess` när processinformation lästes |
 | Fysiskt prov med pump, buss och ESP32 | Återstår |
-| Preliminärt SVG-schema för isolator + AVR + XIAO | XML-validerat och visuellt kontrollerat; faktisk isolator/EXT-pinout återstår |
+| Preliminärt SVG-schema för isolator + AVR + XIAO | XML-validerat och visuellt kontrollerat; revision B avser Adafruit ISO1540 #4903; EXT-pinout/AVR-adapter återstår |
 
 ThermiaWire-ändringen är publicerad på grenen `codex/thermia-nack-visibility`.
 `platformio.ini` låser beroendet till commit
@@ -29,8 +29,10 @@ ThermiaWire: https://github.com/mtornblad/ThermiaWire/pull/1
 ESP32-kortet är nu fastställt: **Seeed Studio XIAO ESP32-C6**.
 Konfigurationen har validerats och C++ genererats med ESPHome 2026.10.1 för
 `seeed_xiao_esp32c6` / ESP32C6, TX GPIO16 och RX GPIO17, utan flödesstyrning.
-Den faktiska EXT-kopplingen och den befintliga isolatorns modell/signalnivåer
-behöver bekräftas innan det preliminära schemat i `WIRING.md` kan färdigställas.
+Den länkade isolatorn är Adafruit ISO1540 #4903. Matningar, sida 1/sida 2,
+10 kΩ-pullups och 100 nF avkoppling har kontrollerats mot tillverkarens pinout
+och Eagle-schema. Den fysiska modulen, EXT-kopplingen och AVR-adaptern behöver
+jämföras med revision B innan lödning. Inga kodändringar i denna schemarevision.
 NODE-inställningen är redan bekräftad rätt av användaren.
 Registerbetydelser och temperaturskala är inte verifierade. Styrning genom
 skrivkommandon är inte implementerad.

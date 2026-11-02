@@ -1,6 +1,10 @@
 # Thermia Duo 901510 – XIAO ESP32-C6 och AVR64DD28
 
-**Preliminärt schema, revision A, 2026-11-02.**
+**Schema för Adafruit ISO1540 #4903, revision B, 2026-11-02.**
+
+Gäller om den befintliga modulen är samma Adafruit-kort som i den länkade
+Electrokit-produkten. Thermias fysiska EXT-stift och AVR-adaptern återstår att
+kontrollera innan lödning.
 
 ![Kopplingsschema](wiring-xiao-c6.svg)
 
@@ -10,8 +14,8 @@ labbkort. ThermiaWire kör fortfarande som I²C-slav, pumpen är master.
 ## Matning och domäner
 
 - Lokal sida: USB-C till XIAO från separat matning. XIAO:s 3V3 förs till AVR VDD,
-  AVR VDDIO2 och isolatorns lokala matning, under förutsättning att isolatorn
-  stöder 3,3 V. Kontrollera regulatorns strömbudget när isolatorn identifierats.
+  AVR VDDIO2 och ISO1540-modulens **sida 2 / VCC**. Modulen stöder 3,3 V.
+  Kontrollera den sammanlagda strömbudgeten för XIAO:s regulator.
 - Båda AVR-matningspinnarna kopplas fysiskt till 3,3 V, även om MVIO redan är
   aktiverat. Ingen säkringsändring utförs av projektets vanliga byggning.
   Innan ombyggnad kontrolleras även att BOD-nivån är lämplig för 3,3 V.
@@ -23,14 +27,39 @@ labbkort. ThermiaWire kör fortfarande som I²C-slav, pumpen är master.
   överför signaler, inte matning; gemensam icke-isolerad matning skulle gå runt
   signalernas galvaniska avskiljning.
 
+## ISO1540-modulens orientering
+
+Adafruits sida 1/sida 2 ska inte väljas enbart efter vilken enhet som är en
+mikrokontroller. **Thermia är I²C-controller/master och ansluts till sida 1. AVR
+är I²C-target/slav och ansluts till sida 2.** Detta följer Adafruits anvisning.
+
+Håll kortet med texten **ISO154x rättvänd**, enligt Adafruits pinoutbild:
+
+- **Sida 1:** nedre stiftraden eller vänstra STEMMA QT-kontakten → Thermia.
+- **Sida 2:** övre stiftraden eller högra STEMMA QT-kontakten → AVR/lokal elektronik.
+
+Anslut efter **VCC/GND/SDA/SCL-märkningen**, inte genom att anta samma fysiska
+stiftordning på de två raderna. Nedan används funktionsnamn, inte godtyckliga
+stiftnummer.
+
+| ISO1540 sida 1, till Thermia | Koppling | ISO1540 sida 2, till AVR | Koppling |
+| --- | --- | --- | --- |
+| VCC | Verifierad 5V_P | VCC | Lokal 3V3_L |
+| GND | GND_P | GND | GND_L |
+| SDA | Thermia SDA | SDA | AVR PA2 |
+| SCL | Thermia SCL | SCL | AVR PA3 |
+
+Modulens två gröna lysdioder visar att respektive sida är matad. De verifierar
+inte att kommunikation eller fysisk jordseparation är korrekt.
+
 ## Nätlista
 
 | Nät | Anslutningar |
 | --- | --- |
-| `3V3_L` | XIAO 3V3, AVR VDD, AVR VDDIO2, isolatorns lokala VDD, R1/R2 övre anslutningar |
-| `GND_L` | XIAO GND, alla AVR GND, isolatorns lokala GND, lokala avkopplingskondensatorer |
-| `SDA_L` | AVR PA2, isolatorns lokala SDA, R1 nedre anslutning |
-| `SCL_L` | AVR PA3, isolatorns lokala SCL, R2 nedre anslutning |
+| `3V3_L` | XIAO 3V3, AVR VDD, AVR VDDIO2, ISO1540 sida 2 VCC |
+| `GND_L` | XIAO GND, alla AVR GND, ISO1540 sida 2 GND, lokala avkopplingskondensatorer |
+| `SDA_L` | AVR PA2, ISO1540 sida 2 SDA |
+| `SCL_L` | AVR PA3, ISO1540 sida 2 SCL |
 | `UART_AVR_TX` | AVR PC0/TX → XIAO D7/GPIO17/RX |
 | `UART_XIAO_TX` | XIAO D6/GPIO16/TX → AVR PC1/RX |
 | `UPDI` | AVR UPDI, separat programmeringskontakt med lokal jord och 3,3 V-referens |
@@ -42,31 +71,29 @@ PC3 används inte. Modbus RTU körs med adress 42, 9600 baud, 8N1.
 
 - C1: 100 nF mellan AVR VDD och GND_L, nära matningspinnen.
 - C2: 100 nF mellan AVR VDDIO2 och GND_L, nära matningspinnen.
-- C3: 100 nF mellan isolatorns lokala VDD och GND_L, med modellens krav som grund.
-- C4: 100 nF mellan isolatorns pump-VDD och GND_P, med modellens krav som grund.
-- C5: 4,7 µF mellan 3V3_L och GND_L vid AVR/isolator, som lokal bulkavkoppling.
-- R1/R2: 4,7 kΩ till 3V3_L är **startvärden** för en kort lokal I²C-buss, inte
-  slutligt dimensionerade värden. Modulens befintliga pullups räknas in; dubblera
-  dem inte utan att kontrollera effektiv resistans. Kontrollera bussens kapacitans,
-  uppmätt klockfrekvens, stigtid och isolatorns sink-/tröskelkrav.
-- Pumpsidans pullups antas finnas i den befintliga fungerande kopplingen och
-  behöver identifieras; inga extra pumpsidepullups föreskrivs här.
-- Isolatorn måste stödja olika matningar, 3,3 V lokalt/5 V på pumpsidan, samt
-  dubbelriktad SDA **och SCL**. AVR:s TWI-slav kan stretcha klockan. ISO1540 är ett
-  exempel på en krets med sådana funktioner; detta är ingen identifiering av den
-  befintliga modulen och inte ett krav att köpa en ny.
+- C5: 4,7 µF mellan 3V3_L och GND_L vid AVR/modul, som lokal bulkavkoppling.
+- **Inga extra I²C-pullups monteras som utgångspunkt.** Adafruit #4903 har redan
+  10 kΩ från SDA och SCL till respektive sidas VCC, alltså fyra pullupmotstånd.
+  Effektiva värden påverkas av eventuell befintlig pullup i pumpen eller på
+  AVR-adaptern. Kontrollera uppmätt stigtid och bussfrekvens innan något ändras.
+- Adafruits Eagle-schema visar redan **100 nF avkoppling per isolatorsida**.
+  De tidigare föreslagna extra C3/C4 vid isolatorn utgår för denna breakout.
+  Våra C1/C2 avser AVR, inte de likadant namngivna komponenterna på modulen.
+- ISO1540 har dubbelriktad SDA **och SCL**, stöd för clock stretching och
+  separata matningar. Därför passar 5 V på pumpens sida och 3,3 V lokalt.
+- I2C-isolatorns sidor är funktionellt asymmetriska; sida 1 till pumpens
+  controller och sida 2 till AVR följer tillverkarens monteringsanvisning.
 
-Schemat visar isolatorn som en funktionsenhet. Sidornas logiska namn anger deras
-användning, inte tillverkarens sida 1/sida 2. Verkligt pinout, orientering,
-spänningsfall på låg nivå och pullupvärden fastställs mot den identifierade kretsen.
-Ett vanligt I²C-nivåskiftarkort är inte en galvanisk isolator.
+Ritningen visar Adafruit-modulen som en enhet, inte en ritning av dess kretskort.
+VCC1/GND1/SDA1/SCL1 betecknar sida 1 och motsvarande suffix 2 sida 2.
+Om den faktiska modulen avviker från Adafruit #4903 behöver detta kontrolleras
+mot dess eget schema innan anslutning.
 
 ## Kvar innan lödning
 
-En bild eller kretsmärkning på den befintliga isolatorn räcker för nästa steg.
-Bekräfta också AVR-kortets verkliga kapsling/adapter och den fungerande
-EXT-kopplingens stift. Därefter kan schemat få fysiska stiftnummer och slutliga
-komponentvärden. Layout på labbkortet behöver hålla pump- och lokaljord åtskilda;
+Jämför det befintliga kortet med Adafruit #4903 och bekräfta AVR-kortets verkliga
+kapsling/adapter och den fungerande EXT-kopplingens stift. Därefter kan schemat
+kompletteras med fysiska stiftnummer på dessa två anslutningar. Layout på labbkortet behöver hålla pump- och lokaljord åtskilda;
 schemat i sig fastställer inte en viss säkerhets-/isolationsklass för bygget.
 
 ## Primärkällor
@@ -74,3 +101,7 @@ schemat i sig fastställer inte en viss säkerhets-/isolationsklass för bygget.
 - [Seeed XIAO ESP32-C6: D6=GPIO16 TX, D7=GPIO17 RX](https://wiki.seeedstudio.com/xiao_esp32c6_getting_started/)
 - [Microchip AVR64DD32/28 datablad: matning, MVIO och portmultiplexering](https://ww1.microchip.com/downloads/en/DeviceDoc/AVR64DD32-28-Prelim-DataSheet-DS40002315B.pdf)
 - [TI ISO1540: separata matningar och dubbelriktad SCL/clock stretching](https://www.ti.com/product/ISO1540)
+
+- [Adafruit #4903 pinout: sida 1/sida 2, matning och 10 kΩ-pullups](https://learn.adafruit.com/adafruit-iso1540-bidirectional-i2c-isolator/pinouts)
+- [Adafruits originalschema (Eagle): komponentvärden och nät](https://github.com/adafruit/Adafruit-ISO1540-PCB)
+- [Länkad Electrokit-produkt: Adafruit 4903](https://www.electrokit.com/adafruit-iso1540-bidirectional-i2c-isolator)

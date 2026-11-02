@@ -48,14 +48,17 @@ Seriell startlogg går på `Serial` med 115200 baud; Modbus använder `Serial1`.
 ## Anslutningar: XIAO ESP32-C6 och direkt UART
 
 Se [kopplingsschemat](docs/wiring-xiao-c6.svg) och
-[matning och isolering](docs/WIRING.md). Schemat är preliminärt tills den
-befintliga I²C-isolatorn och Thermias EXT-stift har identifierats.
+[matning och isolering](docs/WIRING.md). Schemat avser Adafruit ISO1540 #4903 enligt den länkade modulen.
+Thermias EXT-stift och AVR-adaptern återstår att verifiera.
 
 För den nya konstruktionen föreslås AVR och XIAO på samma lokala 3,3 V-domän.
 AVR:s **VDD och VDDIO2 ansluts båda till 3,3 V**. MVIO kan behållas aktiverat med
 samma spänning på båda matningspinnarna; det behövs ingen 5 V-domän på AVR-kortet
-om isolatorns lokala sida fungerar med 3,3 V. Isolatorns pumpsida arbetar med
+eftersom Adafruit ISO1540-modulens lokala sida stöder 3,3 V. Isolatorns pumpsida arbetar med
 pumpens verifierade 5 V-matning och jord. De två jorddomänerna hålls åtskilda.
+**ISO1540 sida 1 går till pumpen (I²C-master), sida 2 till AVR (I²C-slav).**
+Modulen har redan 10 kΩ-pullups och 100 nF avkoppling på respektive sida;
+montera inte förslagets tidigare extra I²C-pullups för denna modul.
 
 | Lokal anslutning | Motpart |
 | --- | --- |
